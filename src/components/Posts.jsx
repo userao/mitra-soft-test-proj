@@ -4,11 +4,14 @@ import Container from "react-bootstrap/esm/Container";
 import Accordion from 'react-bootstrap/Accordion';
 import axios from 'axios';
 import Post from "./Post";
+import FetchingDataSpinner from "./FetchingDataSpinner";
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
+    const [state, setState] = useState('idling');
 
     function fetchPosts() {
+        setState('fetching');
         const url = 'https://jsonplaceholder.typicode.com/posts';
         const promise = new Promise((resolve) => {
             setTimeout(() => {
@@ -22,19 +25,20 @@ const Posts = () => {
         fetchPosts()
             .then((response) => {
                 setPosts(response.data);
+                setState('idling');
             })
     }, []);
 
     return (
         <>
-            {!!posts.length
+            {state === 'fetching'
                 ?
-                <Accordion defaultActiveKey="0">
-                    {posts.map((post) => <Post key={post.id} post={post} />)}
-                </Accordion>
+                <FetchingDataSpinner />
                 :
-                <Container fluid className='d-flex h-50 align-items-center justify-content-center'>
-                    <Spinner animation="border" role="status" />
+                <Container>
+                    <Accordion defaultActiveKey="0">
+                        {posts.map((post) => <Post key={post.id} post={post} />)}
+                    </Accordion>
                 </Container>
             }
         </>
